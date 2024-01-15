@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Google Calendar API Quickstart</title>
+    <meta charset="utf-8" />
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+    <link rel="stylesheet" href="../css/table.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+  </head>
+  <body>
+    <p>Google Calendar API Quickstart</p>
+
+    <!--Add buttons to initiate auth sequence and sign out-->
+    <button id="authorize_button" onclick="handleAuthClick()">Authorize</button>
+    <button id="signout_button" onclick="handleSignoutClick()">Sign Out</button>
+
+    <pre id="content" style="white-space: pre-wrap;"></pre>
+    <pre id="content2" style="white-space: pre-wrap;"></pre>
+    <div id="wellness-calendar"></div>
+    <div id="info"></div>
+    <div class="p-2 bd-highlight">
+      <button type="button" class="btn btn-secondary" onclick="showUserCreateBox();">Create</button>
+      <button type="button" class="btn btn-secondary" id = "add2db">Add to Database</button>
+    </div>
+    <form name="frmContact" method="post" action="http://localhost/htmltodb/insert.php">
+    <div id="container" class="styled-table"></div>
+    </form>
+    <div>
+      <button id="btnExportToCsv" type="button" class="btn btn-info">Download</button>
+      <a href="http://localhost:8000/google-files/calendar-page/calendar.html">Click to go to calendar</a>
+
+    </div>
+
+
+    <script src="../js/googlescrap.js"></script>
+    <script src="../js/exportcsv.js"></script>
+    <script type="text/javascript">
+      $("#add2db").click(function(){                
+        var data = html2json();
+        storeUserDataInSession(data); 
+      });
+
+      function html2json() {
+        var table = document.getElementById("container");
+        var rows = table.getElementsByTagName("tr");
+        var header = ["N", "D", "T", "B", "S", "P", "M"];
+        var data = [];
+
+        for (var i = 1; i < rows.length; i++) {
+          var cells = rows[i].getElementsByTagName("td");
+          var row_data = {};
+          for (var j = 1; j < cells.length - 2; j++) {
+            row_data[header[j-1]] = cells[j].textContent;
+          }
+          data.push(row_data);
+        }
+          console.log(JSON.stringify(data))
+          return data;
+      }
+
+      function storeUserDataInSession(userData) {
+        var userObjectString = JSON.stringify(userData);
+        var url = "http://localhost/htmltodb/receive.php?data=" + encodeURIComponent(userObjectString);
+        window.location.href = url;
+        console.log("JSON data stored in url.");
+      }    
+
+
+  </script>
+    <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2/moment.min.js"></script>
+    <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.16/dist/sweetalert2.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
+  </body>
+</html>
+<!-- python -m http.server 8000 in cmd in this directory to run -->
+<!-- https://developers.google.com/calendar/api/v3/reference/events/list-- >
